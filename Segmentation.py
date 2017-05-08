@@ -7,9 +7,6 @@ bigram = NGramDist('two-grams.txt')
 
 def word_seq_fitness(words):
     prob = sum(math.log10(onegram.get_probability((w,))) for w in words)
-    # biProb = sum(math.log10(bigram.get_probability(w)) for w in get_pairs(words))
-    # print "Words: " + str(words) + " prob: " + str(10 ** prob)
-    # print "biWords: " + str(words) + "prob: " + str(10 ** biProb)
     return prob
 
 
@@ -30,14 +27,9 @@ def segment(word, depth=0):
 
     allSegmentations = [[first] + segment(rest, depth + 1) for (first, rest) in split_pairs(word)]
 
-    # allSegmentations = []
-    #
-    # for (first, rest) in split_pairs(word):
-    #     #if word_seq_fitness([first, rest]) != 0:
-    #         allSegmentations.append([first] + segment(rest))
-
     bi_highest_prob = -999999999
     bi_highest_seg = ()
+    bi_highest_count = 0
 
     one_highest_prob = -999999999
     one_highest_seg = ()
@@ -46,26 +38,25 @@ def segment(word, depth=0):
         for segmentation in allSegmentations:
             # print "LAST: " + str(segmentation)
             bi_prob_sum = 0
+            total_count = 0
             for w in get_pairs(segmentation):
                 # print w,
                 p = bigram.get_probability(w)
                 # print " prob= " + str(p)
                 bi_prob_sum += math.log10(p)
+                total_count += bigram.get_count(w)
             if bi_prob_sum > bi_highest_prob:
                 bi_highest_prob = bi_prob_sum
                 bi_highest_seg = segmentation
+                bi_highest_count = total_count
         print "With BI: " + str(bi_highest_seg)
 
-        # for segmentation in allSegmentations:
-        #     probb = word_seq_fitness(segmentation)
-        #     if probb > one_highest_prob:
-        #         one_highest_prob = probb
-        #         one_highest_seg = segmentation
-        #
-        # if bi_highest_prob < one_highest_prob:
-        #     return one_highest_seg
-        # else:
-        #     return bi_highest_seg
+        maxx = max(allSegmentations, key=word_seq_fitness)
+
+        if bi_highest_count > onegram.get_count(tuple(maxx)):
+            print "CORRECT " + str(bi_highest_seg)
+        else:
+            print "CORRECT " + str(maxx)
 
     return max(allSegmentations, key=word_seq_fitness)
 
@@ -114,36 +105,8 @@ print segment_hash_tag("#bcauseicare") + '\n'
 print segment_hash_tag("#memories") + '\n'
 print segment_hash_tag("#dancertified") + '\n'
 print segment_hash_tag("#ilovesnails") + '\n'
-
-#print get_pairs(["hello", "there", "bud"])
-
-#print split_pairs("helloworld")
-
-# from Trie import Trie
-#
-# trie = Trie()
-#
-# with open("words.txt") as f:
-#     content = f.readlines()
-#
-# with open("slang.txt") as s:
-#     content2 = s.readlines()
-#
-# content = [x.strip().lower() for x in content]
-# content2 = [x.strip().lower() for x in content2]
-#
-# content.extend(content2)
-#
-# trie.make_trie(content)
-#
-# possibleWords = []
-#
-# example = "#iloveyou"
-#
-# # Start at 1 to skip the hashtag
-# for i in range(1, len(example) + 1):
-#     for j in range(i + 1, len(example) + 1):
-#         if trie.in_trie(example[i:j]):
-#             possibleWords.append(example[i:j])
-#
-# print possibleWords
+print segment_hash_tag("#iswamintheafterbirth") + '\n'
+print segment_hash_tag("#afterbirth") + '\n'
+print segment_hash_tag("#brainstorm") + '\n'
+print segment_hash_tag("#lovesnails") + '\n'
+print segment_hash_tag("#thx")

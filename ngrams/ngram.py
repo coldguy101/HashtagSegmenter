@@ -6,15 +6,21 @@ class NGramDist:
         for line in open(filename):
             (words, count) = line.split('\t')
             wordlist = words.split(' ')
+            wordlistLower = [w.lower() for w in wordlist]
 
-            self.probs[tuple(wordlist)] = long(count)
+            if tuple(wordlistLower) in self.probs:
+                self.probs[tuple(wordlistLower)] += long(count)
+            else:
+                self.probs[tuple(wordlistLower)] = long(count)
             self.gramCount += long(count)
 
     def get_probability(self, key):
-        if (key,) in self.probs:
-            return float(self.probs[(key,)]) / self.gramCount
+        if key in self.probs:
+            ret = float(self.probs[key]) / self.gramCount
+            #print "here " + str(key) + " prob= " + str(ret)
+            return ret
         else:
-            return 1.0 / (self.gramCount * 10 ** (len(key) - 2))
+            return 1.0/self.gramCount * 10 ** (len(key) - 2)
 
 #works in python 3
 # class NGramDist:

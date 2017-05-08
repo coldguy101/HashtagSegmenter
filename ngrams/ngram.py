@@ -11,10 +11,10 @@ class NGramDist:
             self.gramCount += long(count)
 
     def get_probability(self, key):
-        if (key,) in self.probs:
-            return float(self.probs[(key,)]) / self.gramCount
+        if key in self.probs:
+            return float(self.probs[key]) / self.gramCount
         else:
-            return 1.0 / (self.gramCount * 10 ** (len(key) - 2))
+            return 1.0 / (self.gramCount * 10 ** (len(key[0]) - 2))
 
 #works in python 3
 # class NGramDist:
